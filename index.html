@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Free Lupus Screening · PCSC Rheumatology</title>
+<!--
+=======================================================================
+  PCSC LUPUS SCREENING APP v2 — SETUP GUIDE
+  -----------------------------------------------------------------------
+  STEP 1 — EMAILJS (free at emailjs.com, ~5 min)
+    1. Sign up → Email Services → Add Gmail → copy Service ID
+    2. Email Templates → Create New:
+         To:      pcsc@platinumhospitalists.com
+         Subject: RHEUM Appointment Requested
+         Body:
+           New Rheumatology Appointment Request
+
+           Patient Name:   {{patient_name}}
+           Date of Birth:  {{patient_dob}}
+           Phone:          {{patient_phone}}
+           Email:          {{patient_email}}
+           Insurance:      {{patient_insurance}}
+           Symptoms Found: {{symptom_score}}
+           Result Level:   {{screening_result}}
+           Submitted:      {{submitted_at}}
+       → copy Template ID
+    3. Account → copy Public Key
+    4. Replace 3 values below
+
+  STEP 2 — HOST ON GITHUB PAGES
+    github.com/pcsc1249 → New repo "rheum-screening"
+    Upload as index.html → Settings → Pages → main branch
+    URL: https://pcsc1249.github.io/rheum-screening
+
+  STEP 3 — QR CODE
+    qr-code-generator.com → paste URL → download PNG
+    Print on 8.5×11, laminate, set at front of booth table
+    Add a sign: "SCAN FOR A FREE LUPUS SCREENING — 2 MINUTES"
+=======================================================================
+-->
+<script>
+  const EJS_SVC  = 'service_nly098h';
+  const EJS_TPL  = 'template_sgqh4w4';
+  const EJS_KEY  = 'onSQovxWUcNViSevO';
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--nv:#1A3A6B;--tl:#1D9E75;--ltl:#E6F7F2;--dtl:#0D6B50;--g1:#F9FAFB;--g2:#F3F4F6;--g4:#9CA3AF;--g6:#4B5563;--g8:#1F2937}
+html{font-size:16px}
+body{font-family:'DM Sans',system-ui,sans-serif;background:#F0F4F8;min-height:100vh;-webkit-font-smoothing:antialiased}
+.app{max-width:430px;margin:0 auto;background:#fff;min-height:100vh}
+.sc{display:none}.sc.on{display:flex;flex-direction:column;min-height:100vh}
+.hdr{padding:28px 22px 22px;color:#fff;flex-shrink:0}
+.hdr.nv{background:var(--nv)}.hdr.tl{background:var(--tl)}
+.eye{font-size:11px;opacity:.72;letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px}
+.ht{font-size:22px;font-weight:800;line-height:1.25}
+.hsb{font-size:13px;opacity:.82;margin-top:6px}
+.bd{padding:18px 22px;flex:1}
+.btn{display:block;width:100%;padding:15px 18px;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;text-align:center;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:opacity .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn+.btn{margin-top:10px}
+.btn.nv{background:var(--nv);color:#fff}
+.btn.tl{background:var(--tl);color:#fff}
+.btn.gh{background:var(--g2);color:var(--g6)}
+.disc{font-size:11px;color:var(--g4);line-height:1.5;margin-bottom:16px;text-align:center}
+.prog-wrap{padding:16px 22px 0;flex-shrink:0}
+.prog-dots{display:flex;gap:5px;margin-bottom:7px}
+.pdot{height:6px;flex:1;border-radius:3px;background:#E5E7EB;transition:background .25s}
+.pdot.done{background:var(--tl)}.pdot.cur{background:var(--nv)}
+.prog-lbl{font-size:11px;color:var(--g4);margin-bottom:2px}
+.cat-hdr{padding:18px 22px 16px;flex-shrink:0}
+.cat-icon{font-size:42px;line-height:1;margin-bottom:8px}
+.cat-q{font-size:18px;font-weight:800;color:var(--g8);line-height:1.3}
+.cat-sub{font-size:13px;color:var(--g6);margin-top:5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px}
+.scard{border:2px solid #E5E7EB;border-radius:16px;padding:16px 12px 14px;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative;background:#fff;transition:border-color .12s,background .12s;-webkit-tap-highlight-color:transparent;min-height:120px;justify-content:center}
+.scard:active{transform:scale(.96)}
+.scard.sel{border-color:var(--ac,var(--tl));background:var(--bg,var(--ltl))}
+.ckbadge{display:none;position:absolute;top:8px;right:8px;width:22px;height:22px;background:var(--ac,var(--tl));color:#fff;border-radius:50%;font-size:12px;font-weight:700;text-align:center;line-height:22px}
+.scard.sel .ckbadge{display:block}
+.si{font-size:44px;line-height:1;margin-bottom:10px}
+.sn{font-size:13px;font-weight:700;color:var(--g8);text-align:center;line-height:1.3}
+.sd{font-size:11px;color:var(--g4);text-align:center;margin-top:5px;line-height:1.4}
+.nav-bar{padding:14px 22px 28px;flex-shrink:0;background:#fff;border-top:1px solid var(--g2)}
+.sel-count{font-size:12px;color:var(--g6);text-align:center;margin-bottom:10px;min-height:18px}
+.tl-box{background:var(--ltl);border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:14px;color:var(--dtl);line-height:1.65}
+.am-box{background:#FFFBEB;border:1.5px solid #D97706;border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:14px;color:#92400E;line-height:1.65}
+.cr-box{background:#FFF0EE;border:1.5px solid #C0392B;border-radius:14px;padding:16px 18px;margin-bottom:16px;font-size:14px;color:#7F1D1D;line-height:1.65}
+.tbt{font-weight:800;font-size:15px;margin-bottom:6px}
+.score-row{display:flex;align-items:center;gap:16px;padding:18px 20px;background:#F9FAFB;border-radius:14px;margin-bottom:18px}
+.score-num{font-size:44px;font-weight:800;color:var(--nv);line-height:1}
+.score-info{flex:1}
+.score-info b{font-size:15px;font-weight:700;color:var(--g8);display:block;margin-bottom:3px}
+.score-info span{font-size:12px;color:var(--g6)}
+.cc{background:var(--g2);border-radius:14px;padding:18px;margin-bottom:16px}
+.cn{font-size:16px;font-weight:800;color:var(--nv);margin-bottom:10px}
+.cp{font-size:22px;font-weight:800;color:var(--tl);margin:5px 0 3px}
+.cd{font-size:13px;color:var(--g6);margin-bottom:5px;line-height:1.5}
+.fg{margin-bottom:16px}
+.fl{font-size:13px;font-weight:700;color:var(--g6);margin-bottom:6px;display:block}
+.fi{width:100%;padding:13px 14px;border:2px solid #E5E7EB;border-radius:12px;font-size:15px;font-family:inherit;color:var(--g8);outline:none;background:#fff;transition:border-color .15s}
+.fi:focus{border-color:var(--tl)}
+.fh{font-size:12px;color:var(--g4);margin-top:4px}
+.trio{display:flex;gap:10px;margin:18px 0}
+.titem{flex:1;background:#F9FAFB;border-radius:14px;padding:14px 10px;text-align:center}
+.titem .te{font-size:28px;display:block;margin-bottom:6px}
+.titem .tl2{font-size:12px;font-weight:700;color:#374151}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- WELCOME -->
+<div class="sc on" id="sw">
+  <div class="hdr nv" style="text-align:center;padding:36px 22px 28px">
+    <div style="font-size:64px;line-height:1;margin-bottom:14px">🦋</div>
+    <div class="eye">PCSC Rheumatology · Free Health Screening</div>
+    <div class="ht" style="font-size:26px;text-align:center">Lupus &amp; Autoimmune<br/>Symptom Check</div>
+    <div class="hsb" style="text-align:center">Dr. Verma, MD &nbsp;·&nbsp; Takes about 2 minutes</div>
+  </div>
+  <div class="bd">
+    <div class="tl-box">
+      <div class="tbt">👋 Welcome!</div>
+      Lupus is often called "the great imitator" — its symptoms are easy to miss for years. This quick check helps identify if you may benefit from seeing a specialist. It's completely free.
+    </div>
+    <div class="trio">
+      <div class="titem"><span class="te">⏱️</span><span class="tl2">~2 Minutes</span></div>
+      <div class="titem"><span class="te">🔒</span><span class="tl2">Private</span></div>
+      <div class="titem"><span class="te">💚</span><span class="tl2">100% Free</span></div>
+    </div>
+    <button class="btn nv" onclick="startQ()" style="font-size:18px;padding:18px">Let's Get Started →</button>
+    <div class="disc" style="margin-top:14px">This is not a medical diagnosis. For informational purposes only.</div>
+  </div>
+</div>
+
+<!-- CATEGORY SCREEN -->
+<div class="sc" id="scat">
+  <div class="prog-wrap">
+    <div class="prog-dots" id="pdots"></div>
+    <div class="prog-lbl" id="plbl"></div>
+  </div>
+  <div class="cat-hdr" id="chdr"></div>
+  <div class="grid" id="cgrid"></div>
+  <div class="nav-bar">
+    <div class="sel-count" id="selct"></div>
+    <button class="btn nv" id="cnext" onclick="nextCat()">Next →</button>
+    <button class="btn gh" onclick="skipCat()" style="margin-top:10px;font-size:14px;padding:12px">None of these apply to me</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="sc" id="sr">
+  <div class="hdr nv">
+    <div class="eye">Your Screening Results</div>
+    <div class="ht" id="rht" style="font-size:28px"></div>
+    <div class="hsb" id="rhsb"></div>
+  </div>
+  <div class="bd" id="rbody"></div>
+</div>
+
+<!-- BOOK FORM -->
+<div class="sc" id="sbook">
+  <div class="hdr tl">
+    <div class="eye">Appointment Request</div>
+    <div class="ht" style="font-size:20px">📋 Dr. Verma · PCSC Rheumatology</div>
+    <div class="hsb">We'll call you within 1–2 business days to confirm</div>
+  </div>
+  <div class="bd">
+    <div class="fg"><label class="fl">👤 Full Name <span style="color:#C0392B">*</span></label><input class="fi" id="fn" type="text" placeholder="First and last name" autocomplete="name"/></div>
+    <div class="fg"><label class="fl">🎂 Date of Birth <span style="color:#C0392B">*</span></label><input class="fi" id="fd" type="date" autocomplete="bday"/></div>
+    <div class="fg"><label class="fl">📱 Phone Number <span style="color:#C0392B">*</span></label><input class="fi" id="fp" type="tel" placeholder="(702) 000-0000" autocomplete="tel"/></div>
+    <div class="fg"><label class="fl">📧 Email Address</label><input class="fi" id="fe" type="email" placeholder="Optional" autocomplete="email"/></div>
+    <div class="fg"><label class="fl">🏥 Insurance Provider</label><input class="fi" id="fi2" type="text" placeholder="Unknown? That's totally OK!"/><div class="fh">We accept most major plans and will help figure it out.</div></div>
+    <div class="disc" style="text-align:left;margin-top:6px">By submitting, you agree to PCSC contacting you about this request. This is not a confirmed appointment.</div>
+    <button class="btn tl" onclick="doSub()" style="font-size:17px;padding:17px">📨 Submit My Request</button>
+    <button class="btn gh" onclick="go('sdecline')">Cancel</button>
+  </div>
+</div>
+
+<!-- SUBMITTING -->
+<div class="sc" id="ssub">
+  <div class="hdr tl" style="min-height:200px;justify-content:center;display:flex;align-items:center;flex-direction:column;text-align:center">
+    <div style="font-size:56px;margin-bottom:18px">📤</div>
+    <div style="font-size:17px;font-weight:700"><span class="spin"></span>Sending your request…</div>
+    <div style="font-size:13px;opacity:.85;margin-top:8px">Almost done — just a moment!</div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="sc" id="ssuccess">
+  <div class="hdr tl" style="text-align:center;padding:36px 22px 28px">
+    <div style="font-size:60px;line-height:1;margin-bottom:14px">🎉</div>
+    <div class="ht" style="font-size:24px;text-align:center">You're all set!</div>
+    <div class="hsb" style="text-align:center">Our team will reach out within 1–2 business days to confirm your appointment.</div>
+  </div>
+  <div class="bd">
+    <div class="cc">
+      <div class="cn">Platinum Continuity &amp; Specialty Clinic</div>
+      <div class="cp">📞 725-205-1249</div>
+      <div style="font-size:12px;color:var(--g4);margin-bottom:12px">Call us anytime if you need us sooner</div>
+      <div class="cd">🩺 <strong>Rheumatology:</strong> Dr. Verma, MD</div>
+      <div class="cd">📍 2510 Wigwam Pkwy, Ste 202, Henderson, NV</div>
+      <div class="cd">🌐 platinum-pcsc.com</div>
+    </div>
+    <div class="disc">Thank you for trusting PCSC Rheumatology with your health. We look forward to meeting you!</div>
+    <button class="btn nv" onclick="resetAll()">Done</button>
+  </div>
+</div>
+
+<!-- DECLINE -->
+<div class="sc" id="sdecline">
+  <div class="hdr nv" style="text-align:center;padding:28px 22px 22px">
+    <div style="font-size:52px;margin-bottom:12px">😊</div>
+    <div class="ht" style="text-align:center;font-size:22px">No problem at all!</div>
+    <div class="hsb" style="text-align:center">Keep our info — we're here whenever you're ready.</div>
+  </div>
+  <div class="bd">
+    <div class="cc">
+      <div class="cn">Platinum Continuity &amp; Specialty Clinic</div>
+      <div style="font-size:13px;color:var(--g6);margin-bottom:8px">Rheumatology &nbsp;·&nbsp; Dr. Verma, MD</div>
+      <div class="cp">📞 725-205-1249</div>
+      <div style="margin-top:12px">
+        <div class="cd">📠 Fax: 702-725-2530</div>
+        <div class="cd">🌐 platinum-pcsc.com</div>
+        <div class="cd">📍 2510 Wigwam Pkwy, Ste 202, Henderson, NV 89074</div>
+        <div class="cd">✉️ pcsc@platinumhospitalists.com</div>
+      </div>
+    </div>
+    <div class="tl-box">💚 We accept most major insurance. If you ever experience worsening joint pain, unusual fatigue, skin changes, or other symptoms — please don't hesitate to call us!</div>
+    <button class="btn nv" onclick="resetAll()">Done</button>
+  </div>
+</div>
+
+</div>
+<script>
+const CATS=[
+  {e:'🌿',l:'Skin & Hair',q:'Do you have any of these skin or hair changes?',sub:'Tap all cards that look familiar',bg:'#E8F8F0',ac:'#1D9E75',
+   s:[{e:'🦋',n:'Face Rash',d:'Butterfly rash on cheeks & nose'},
+      {e:'☀️',n:'Sun Sensitivity',d:'Skin rash after sun exposure'},
+      {e:'🔴',n:'Skin Patches',d:'Raised, scaly, or disc-shaped spots'},
+      {e:'💇',n:'Hair Thinning',d:'Unusual or patchy hair loss'}]},
+  {e:'👄',l:'Mouth & Eyes',q:'Do you experience any of these?',sub:'Tap all that apply',bg:'#EBF5FB',ac:'#2563A8',
+   s:[{e:'😮',n:'Mouth Sores',d:'Recurring sores in your mouth or nose'},
+      {e:'👁',n:'Dry Eyes & Mouth',d:'Persistently dry eyes or mouth'}]},
+  {e:'🦴',l:'Joints & Muscles',q:'Do your joints or muscles bother you?',sub:'Check anything that sounds familiar',bg:'#FDF2F8',ac:'#BE185D',
+   s:[{e:'🤲',n:'Joint Pain',d:'2+ joints ache, swell, or feel stiff'},
+      {e:'🌅',n:'Morning Stiffness',d:'Joints take 30+ min to loosen up'}]},
+  {e:'❤️',l:'Chest & Breathing',q:'Any chest or breathing issues?',sub:'Tap all that apply',bg:'#FFF0EE',ac:'#C0392B',
+   s:[{e:'💢',n:'Chest Pain',d:'Sharp pain when breathing deeply or lying flat'},
+      {e:'🌬',n:'Shortness of Breath',d:"Trouble breathing with no clear reason"}]},
+  {e:'💧',l:'Kidneys & Blood',q:'Have you noticed any of these?',sub:'Be as open as you can',bg:'#EFF6FF',ac:'#1D4ED8',
+   s:[{e:'🦵',n:'Body Swelling',d:'Puffy legs, ankles, or around the eyes'},
+      {e:'🩸',n:'Urine Changes',d:'Foamy, dark, or blood-tinged urine'},
+      {e:'🩺',n:'Low Blood Counts',d:'Told you have anemia or low blood cells'}]},
+  {e:'🧠',l:'Brain & Nerves',q:'Have you experienced any of these?',sub:'Check all that sound familiar',bg:'#F5F3FF',ac:'#6D28D9',
+   s:[{e:'⚡',n:'Seizures',d:'Seizures with no known cause'},
+      {e:'🤕',n:'Severe Headaches',d:'Recurring migraines or severe headaches'},
+      {e:'🌫',n:'Brain Fog',d:'Memory issues or difficulty thinking clearly'}]},
+  {e:'⚡',l:'General Symptoms',q:"Do any of these sound like you?",sub:'These are very common in autoimmune conditions',bg:'#FFFBEB',ac:'#D97706',
+   s:[{e:'😴',n:'Extreme Fatigue',d:"Exhaustion that doesn't get better with rest"},
+      {e:'🌡',n:'Unexplained Fever',d:'Fever over 100°F for more than a few days'},
+      {e:'🥶',n:"Raynaud's",d:'Fingers/toes turn white or blue in cold or stress'},
+      {e:'🩸',n:'Blood Clots',d:'History of blood clots or pregnancy complications'}]},
+  {e:'🔬',l:'Prior Testing',q:"Last step — any of these before?",sub:"Don't worry if you're not sure",bg:'#F9FAFB',ac:'#374151',
+   s:[{e:'🧪',n:'Positive ANA Test',d:'Blood test showed a positive ANA result'},
+      {e:'🏥',n:'Prior Autoimmune Dx',d:"Told you have an autoimmune condition"}]},
+];
+
+let ci=0,tk={},cur='sw',score=0,lvl='low';
+
+function go(id){
+  document.getElementById(cur).classList.remove('on');
+  document.getElementById(id).classList.add('on');
+  cur=id;window.scrollTo(0,0);
+}
+
+function startQ(){ci=0;loadCat(0);go('scat');}
+
+function loadCat(idx){
+  const cat=CATS[idx];
+  document.getElementById('pdots').innerHTML=CATS.map((_,i)=>'<div class="pdot'+(i<idx?' done':i===idx?' cur':'')+'"></div>').join('');
+  document.getElementById('plbl').textContent='Category '+(idx+1)+' of '+CATS.length+' — '+cat.l;
+  document.getElementById('chdr').innerHTML='<div class="cat-icon">'+cat.e+'</div><div class="cat-q">'+cat.q+'</div><div class="cat-sub">'+cat.sub+'</div>';
+  document.getElementById('chdr').style.background=cat.bg;
+  const g=document.getElementById('cgrid');g.innerHTML='';
+  cat.s.forEach((s,si)=>{
+    const k=idx+'-'+si,c=document.createElement('div');
+    c.className='scard'+(tk[k]?' sel':'');
+    c.style.setProperty('--ac',cat.ac);c.style.setProperty('--bg',cat.bg);
+    c.innerHTML='<div class="ckbadge">✓</div><div class="si">'+s.e+'</div><div class="sn">'+s.n+'</div><div class="sd">'+s.d+'</div>';
+    c.onclick=()=>{tk[k]=!tk[k];c.classList.toggle('sel',!!tk[k]);updSel(idx);};
+    g.appendChild(c);
+  });
+  updSel(idx);
+}
+
+function updSel(idx){
+  const n=CATS[idx].s.filter((_,si)=>!!tk[idx+'-'+si]).length;
+  document.getElementById('selct').textContent=n>0?n+' symptom'+(n!==1?'s':'')+' selected in this category':'Tap any cards that match your experience';
+}
+
+function nextCat(){if(ci<CATS.length-1){ci++;loadCat(ci);}else showResults();}
+function skipCat(){if(ci<CATS.length-1){ci++;loadCat(ci);}else showResults();}
+
+function showResults(){
+  score=Object.values(tk).filter(Boolean).length;
+  lvl=score>=4?'refer':score===3?'borderline':'low';
+  document.getElementById('rht').textContent=score+' symptom'+(score!==1?'s':'')+' flagged';
+  document.getElementById('rhsb').textContent='Out of '+CATS.reduce((a,c)=>a+c.s.length,0)+' total symptoms reviewed';
+  const M={
+    low:{cls:'tl-box',ic:'💚',h:"Low likelihood — that's great news!",b:"You reported fewer than 3 symptoms associated with lupus. That's reassuring! But if you ever notice new or worsening symptoms, we're always here for you.",cta:false},
+    borderline:{cls:'am-box',ic:'⚠️',h:'Borderline — a check-up is a good idea',b:"You reported 3 symptoms that can be associated with autoimmune conditions like lupus. We recommend a quick consultation with Dr. Verma to rule things out. It's quick and free to ask!",cta:true,q:'Would you like to schedule a FREE consultation with Dr. Verma at PCSC Rheumatology?'},
+    refer:{cls:'cr-box',ic:'🔔',h:'We recommend seeing a rheumatologist',b:"You reported "+score+" symptoms that are commonly associated with lupus or autoimmune disease. This doesn't mean you definitely have lupus — but getting a proper evaluation is really important. Dr. Verma can help.",cta:true,q:'Would you like to request an appointment with Dr. Verma at PCSC?'},
+  }[lvl];
+  const rb=document.getElementById('rbody');
+  let h='<div class="score-row"><div class="score-num">'+score+'</div><div class="score-info"><b>symptoms reported</b><span>'+
+    (lvl==='low'?'Low — fewer than 3 symptoms':lvl==='borderline'?'Borderline — 3 symptoms':'Referral recommended — 4+ symptoms')+'</span></div></div>';
+  h+='<div class="'+M.cls+'"><div class="tbt">'+M.ic+' '+M.h+'</div>'+M.b+'</div>';
+  if(M.cta){
+    h+='<div style="font-size:15px;font-weight:700;color:#1F2937;margin-bottom:16px">'+M.q+'</div>';
+    h+='<button class="btn tl" onclick="go(\'sbook\')" style="font-size:17px;padding:17px">🗓️ Yes, I\'d like an appointment</button>';
+    h+='<button class="btn gh" onclick="go(\'sdecline\')" style="margin-top:10px">No thanks</button>';
+  } else {
+    h+='<div class="cc"><div class="cn">Platinum Continuity &amp; Specialty Clinic</div><div class="cp">📞 725-205-1249</div><div class="cd">🩺 Rheumatology · Dr. Verma, MD</div><div class="cd">📍 2510 Wigwam Pkwy, Ste 202, Henderson, NV</div></div>';
+    h+='<button class="btn nv" onclick="resetAll()">Done</button>';
+  }
+  rb.innerHTML=h;go('sr');
+}
+
+async function doSub(){
+  const n=document.getElementById('fn').value.trim(),d=document.getElementById('fd').value.trim(),p=document.getElementById('fp').value.trim();
+  if(!n||!d||!p){alert('Please fill in your Name, Date of Birth, and Phone Number to continue.');return;}
+  go('ssub');
+  const ll={'low':'Low likelihood (0-2 symptoms)','borderline':'Borderline — evaluation recommended (3 symptoms)','refer':'Referral recommended (4+ symptoms)'};
+  const params={patient_name:n,patient_dob:d,patient_phone:p,patient_email:document.getElementById('fe').value.trim()||'Not provided',patient_insurance:document.getElementById('fi2').value.trim()||'Unknown / Not provided',symptom_score:score+' symptom'+(score!==1?'s':'')+' reported',screening_result:ll[lvl]||lvl,submitted_at:new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles',dateStyle:'full',timeStyle:'short'})};
+  try{emailjs.init(EJS_KEY);await emailjs.send(EJS_SVC,EJS_TPL,params);}catch(e){console.error('EmailJS:',e);}
+  go('ssuccess');
+}
+
+function resetAll(){
+  tk={};ci=0;score=0;
+  document.querySelectorAll('.scard').forEach(c=>c.classList.remove('sel'));
+  ['fn','fd','fp','fe','fi2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  go('sw');
+}
+</script>
+</body>
+</html>
