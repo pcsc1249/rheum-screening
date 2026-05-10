@@ -205,7 +205,9 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#F0F4F8;min-height:10
       <div class="cp">📞 725-205-1249</div>
       <div style="font-size:12px;color:var(--g4);margin-bottom:12px">Call us anytime if you need us sooner</div>
       <div class="cd">🩺 <strong>Rheumatology:</strong> Dr. Verma, MD</div>
-      <div class="cd">📍 2510 Wigwam Pkwy, Ste 202, Henderson, NV</div>
+      <div class="cd" style="font-weight:600;color:var(--g8);margin-top:6px">📍 Our Locations:</div>
+      <div class="cd" style="padding-left:20px">Henderson: 2510 Wigwam Pkwy, Ste 202, NV 89074</div>
+      <div class="cd" style="padding-left:20px">Spring Valley: 5495 S Rainbow Blvd, Ste 202, Las Vegas, NV 89118</div>
       <div class="cd">🌐 platinum-pcsc.com</div>
     </div>
     <div class="disc">Thank you for trusting PCSC Rheumatology with your health. We look forward to meeting you!</div>
@@ -228,8 +230,10 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#F0F4F8;min-height:10
       <div style="margin-top:12px">
         <div class="cd">📠 Fax: 702-725-2530</div>
         <div class="cd">🌐 platinum-pcsc.com</div>
-        <div class="cd">📍 2510 Wigwam Pkwy, Ste 202, Henderson, NV 89074</div>
         <div class="cd">✉️ pcsc@platinumhospitalists.com</div>
+        <div class="cd" style="font-weight:600;color:var(--g8);margin-top:6px">📍 Our Locations:</div>
+        <div class="cd" style="padding-left:20px">Henderson: 2510 Wigwam Pkwy, Ste 202, NV 89074</div>
+        <div class="cd" style="padding-left:20px">Spring Valley: 5495 S Rainbow Blvd, Ste 202, Las Vegas, NV 89118</div>
       </div>
     </div>
     <div class="tl-box">💚 We accept most major insurance. If you ever experience worsening joint pain, unusual fatigue, skin changes, or other symptoms — please don't hesitate to call us!</div>
@@ -327,7 +331,7 @@ function showResults(){
     h+='<button class="btn tl" onclick="go(\'sbook\')" style="font-size:17px;padding:17px">🗓️ Yes, I\'d like an appointment</button>';
     h+='<button class="btn gh" onclick="go(\'sdecline\')" style="margin-top:10px">No thanks</button>';
   } else {
-    h+='<div class="cc"><div class="cn">Platinum Continuity &amp; Specialty Clinic</div><div class="cp">📞 725-205-1249</div><div class="cd">🩺 Rheumatology · Dr. Verma, MD</div><div class="cd">📍 2510 Wigwam Pkwy, Ste 202, Henderson, NV</div></div>';
+    h+='<div class="cc"><div class="cn">Platinum Continuity &amp; Specialty Clinic</div><div class="cp">📞 725-205-1249</div><div class="cd">🩺 Rheumatology · Dr. Verma, MD</div><div class="cd" style="font-weight:600;color:#1F2937;margin-top:6px">📍 Our Locations:</div><div class="cd" style="padding-left:20px">Henderson: 2510 Wigwam Pkwy, Ste 202, NV 89074</div><div class="cd" style="padding-left:20px">Spring Valley: 5495 S Rainbow Blvd, Ste 202, Las Vegas, NV 89118</div></div>';
     h+='<button class="btn nv" onclick="resetAll()">Done</button>';
   }
   rb.innerHTML=h;go('sr');
